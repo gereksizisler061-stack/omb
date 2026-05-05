@@ -36,6 +36,10 @@ export default async function handler(req, res) {
     updated_at: new Date().toISOString()
   }));
 
+  const uniqueUsers = Array.from(
+    new Map(cleanUsers.map(u => [u.name, u])).values()
+  );
+
   const response = await fetch(`${process.env.SUPABASE_URL}/rest/v1/users`, {
     method: "POST",
     headers: {
@@ -44,7 +48,7 @@ export default async function handler(req, res) {
       "Content-Type": "application/json",
       "Prefer": "resolution=merge-duplicates"
     },
-    body: JSON.stringify(cleanUsers)
+    body: JSON.stringify(uniqueUsers)
   });
 
   const text = await response.text();
@@ -58,6 +62,6 @@ export default async function handler(req, res) {
 
   return res.status(200).json({
     ok: true,
-    saved: cleanUsers.length
+    saved: uniqueUsers.length
   });
 }

@@ -84,6 +84,7 @@ th{
   <table>
     <thead>
       <tr>
+        <th>Pos</th>
         <th>Name</th>
         <th>Rank</th>
         <th>Family</th>
@@ -140,6 +141,7 @@ async function load(){
     data.forEach(u => {
       tbody.innerHTML += `
         <tr>
+          <td>${u.pos || ""}</td>
           <td>${u.name || ""}</td>
           <td>${u.rank || ""}</td>
           <td>${u.family || ""}</td>

@@ -3,121 +3,257 @@
 <head>
 <meta charset="UTF-8">
 <title>Scanner Panel</title>
-
 <style>
-body{
-  margin:0;
-  background:linear-gradient(135deg,#0f172a,#020617);
-  color:#e2e8f0;
-  font-family:Segoe UI,Arial;
+:root{
+  --bg:#070b14;
+  --panel:#0f172a;
+  --panel2:#111827;
+  --card:#111c33;
+  --border:#263449;
+  --text:#e5edf8;
+  --muted:#8fa3bf;
+  --blue:#38bdf8;
+  --green:#22c55e;
+  --yellow:#facc15;
+  --red:#ef4444;
+  --purple:#a78bfa;
 }
 
-/* LOGIN */
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:
+    radial-gradient(circle at top left,rgba(56,189,248,.18),transparent 32%),
+    radial-gradient(circle at top right,rgba(167,139,250,.16),transparent 28%),
+    linear-gradient(135deg,#020617,#0f172a 55%,#020617);
+  color:var(--text);
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+}
+
 #login{
   height:100vh;
   display:flex;
   align-items:center;
   justify-content:center;
-}
-.card{
-  background:#0f172a;
-  padding:30px;
-  border-radius:16px;
-  width:340px;
-  box-shadow:0 0 40px rgba(0,0,0,.7);
-  border:1px solid #1e293b;
-}
-.card h2{
-  margin:0 0 10px;
-  color:#38bdf8;
-}
-input,select{
-  width:100%;
-  padding:10px;
-  margin-top:10px;
-  border-radius:8px;
-  border:1px solid #334155;
-  background:#020617;
-  color:white;
-}
-button{
-  width:100%;
-  margin-top:12px;
-  padding:10px;
-  border:none;
-  border-radius:8px;
-  background:#38bdf8;
-  color:black;
-  font-weight:bold;
-  cursor:pointer;
-}
-button:hover{
-  background:#0ea5e9;
-}
-
-#error{
-  color:#ef4444;
-  margin-top:10px;
-}
-
-/* APP */
-#app{
-  display:none;
   padding:20px;
 }
 
-h2{
-  color:#38bdf8;
+.card{
+  width:360px;
+  background:rgba(15,23,42,.88);
+  border:1px solid rgba(148,163,184,.18);
+  border-radius:22px;
+  padding:30px;
+  box-shadow:0 25px 80px rgba(0,0,0,.55);
+  backdrop-filter:blur(14px);
 }
 
-/* FILTERS */
+.card h2{
+  margin:0 0 6px;
+  font-size:26px;
+  color:var(--blue);
+}
+
+.card:before{
+  content:"Secure scanner dashboard";
+  display:block;
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:18px;
+}
+
+input,button,select{
+  box-sizing:border-box;
+  padding:11px 12px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:#07111f;
+  color:white;
+  outline:none;
+}
+
+input:focus,select:focus{
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(56,189,248,.12);
+}
+
+.card input,.card button{
+  width:100%;
+  margin-top:10px;
+}
+
+button{
+  background:linear-gradient(135deg,#38bdf8,#2563eb);
+  border:0;
+  cursor:pointer;
+  font-weight:800;
+  letter-spacing:.2px;
+  color:white;
+  box-shadow:0 10px 30px rgba(37,99,235,.25);
+}
+
+button:hover{
+  transform:translateY(-1px);
+  filter:brightness(1.08);
+}
+
+#error{
+  color:#fecaca;
+  background:rgba(239,68,68,.12);
+  border:1px solid rgba(239,68,68,.25);
+  margin-top:12px;
+  padding:9px 10px;
+  border-radius:10px;
+  font-size:13px;
+  display:none;
+}
+
+#error:not(:empty){display:block}
+
+#app{
+  display:none;
+  padding:24px;
+}
+
+.header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:16px;
+}
+
+.header h2{
+  margin:0;
+  font-size:28px;
+  color:var(--blue);
+}
+
+#status{
+  color:var(--muted);
+  background:rgba(15,23,42,.72);
+  border:1px solid rgba(148,163,184,.15);
+  padding:10px 14px;
+  border-radius:999px;
+  font-size:13px;
+}
+
+.panel{
+  background:rgba(15,23,42,.72);
+  border:1px solid rgba(148,163,184,.14);
+  border-radius:18px;
+  padding:16px;
+  box-shadow:0 20px 60px rgba(0,0,0,.28);
+  backdrop-filter:blur(10px);
+}
+
 #filters{
   display:flex;
-  flex-wrap:wrap;
   gap:10px;
-  margin:15px 0;
+  flex-wrap:wrap;
+  margin-bottom:14px;
 }
 
-/* TABLE */
+#filters input,#filters select{
+  min-width:150px;
+  height:40px;
+}
+
+label{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:13px;
+  color:var(--muted);
+  padding:0 10px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:#07111f;
+}
+
+label input{
+  width:auto;
+  margin:0;
+}
+
+.table-wrap{
+  overflow:auto;
+  border-radius:16px;
+  border:1px solid rgba(148,163,184,.14);
+}
+
 table{
   width:100%;
   border-collapse:collapse;
-  border-radius:10px;
-  overflow:hidden;
+  min-width:980px;
+  background:rgba(2,6,23,.35);
+}
+
+th,td{
+  padding:10px 11px;
+  font-size:13px;
+  border-bottom:1px solid rgba(148,163,184,.11);
+  white-space:nowrap;
 }
 
 th{
-  background:#1e293b;
-  color:#38bdf8;
+  position:sticky;
+  top:0;
+  background:#111827;
+  color:#93c5fd;
   cursor:pointer;
-  padding:10px;
+  user-select:none;
+  text-align:left;
+  z-index:1;
 }
 
 th:hover{
-  background:#334155;
+  background:#1e293b;
+  color:#fff;
 }
 
-td{
-  padding:8px;
-  border-bottom:1px solid #1e293b;
+tbody tr{
+  transition:.15s ease;
 }
 
-tr:hover{
-  background:#020617;
+tbody tr:hover{
+  background:rgba(56,189,248,.08);
 }
 
-/* COLORS */
-.rank{
-  color:#facc15;
+td:nth-child(1){
+  color:#c4b5fd;
+  font-weight:700;
 }
-.wealth{
-  color:#22c55e;
+
+td:nth-child(2){
+  color:#f8fafc;
+  font-weight:700;
 }
-.plating-high{
-  color:#22c55e;
+
+td:nth-child(3){
+  color:var(--yellow);
+  font-weight:700;
 }
-.plating-low{
-  color:#ef4444;
+
+td:nth-child(5){
+  color:var(--green);
+  font-weight:700;
+}
+
+td:nth-child(6){
+  color:#fb7185;
+  font-weight:700;
+}
+
+td:nth-child(7){
+  color:#fde68a;
+}
+
+td:nth-child(8){
+  color:var(--muted);
+  font-size:12px;
 }
 </style>
 </head>
@@ -129,134 +265,252 @@ tr:hover{
     <h2>Scanner Panel</h2>
     <input id="username" placeholder="Kullanıcı adı">
     <input id="password" type="password" placeholder="Şifre">
-    <button onclick="login()">Giriş</button>
+    <button onclick="login()">Giriş yap</button>
     <div id="error"></div>
   </div>
 </div>
 
 <div id="app">
-  <h2>Scanner Panel</h2>
-  <div id="status"></div>
-
-  <div id="filters">
-    <input id="searchInput" placeholder="İsim ara..." oninput="render()">
-
-    <select id="rankFilter" onchange="render()">
-      <option value="0">All Ranks</option>
-      <option value="14">Bruglione+</option>
-      <option value="15">Capodecina+</option>
-      <option value="16">Godfather</option>
-    </select>
-
-    <select id="wealthFilter" onchange="render()">
-      <option value="0">All Wealth</option>
-      <option value="4">Rich+</option>
-      <option value="5">Very rich+</option>
-    </select>
-
-    <label>
-      <input type="checkbox" id="casinoOnly" onchange="render()">
-      Casino only
-    </label>
+  <div class="header">
+    <h2>Scanner Panel</h2>
+    <div id="status">Yükleniyor...</div>
   </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th onclick="sortTable('position')">Pos</th>
-        <th onclick="sortTable('name')">Name</th>
-        <th onclick="sortTable('rank')">Rank</th>
-        <th onclick="sortTable('family')">Family</th>
-        <th onclick="sortTable('wealth')">Wealth</th>
-        <th>Casino</th>
-      </tr>
-    </thead>
-    <tbody id="tbody"></tbody>
-  </table>
+  <div class="panel">
+    <div id="filters">
+      <input id="searchInput" placeholder="İsim ara..." oninput="render()">
+
+      <select id="rankFilter" onchange="render()">
+        <option value="0">All Ranks</option>
+        <option value="14">Bruglione+</option>
+        <option value="15">Capodecina+</option>
+        <option value="16">Godfather / First Lady</option>
+      </select>
+
+      <select id="wealthFilter" onchange="render()">
+        <option value="0">All Wealth</option>
+        <option value="4">Rich+</option>
+        <option value="5">Very rich+</option>
+        <option value="6">Too rich+</option>
+        <option value="7">Richer than God</option>
+      </select>
+
+      <select id="platingFilter" onchange="render()">
+        <option value="0">All Plating</option>
+        <option value="1">None+</option>
+        <option value="2">Very Low+</option>
+        <option value="3">Low+</option>
+        <option value="4">Medium+</option>
+        <option value="5">High+</option>
+        <option value="6">Very High only</option>
+      </select>
+
+      <select id="familyFilter" onchange="render()">
+        <option value="all">All Families</option>
+        <option value="none">None only</option>
+        <option value="with">With family</option>
+      </select>
+
+      <label>
+        <input type="checkbox" id="casinoOnly" onchange="render()">
+        Casino only
+      </label>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortTable('position')">Pos</th>
+            <th onclick="sortTable('name')">Name</th>
+            <th onclick="sortTable('rank')">Rank</th>
+            <th onclick="sortTable('family')">Family</th>
+            <th onclick="sortTable('wealth')">Wealth</th>
+            <th onclick="sortTable('plating')">Plating</th>
+            <th onclick="sortTable('casino')">Casino</th>
+            <th onclick="sortTable('updated_at')">Updated</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
 <script>
 const users = [
-  { user: "admin", pass: "616161" }
+  { user: "admin", pass: "616161" },
+  { user: "deneme", pass: "313131" }
 ];
 
 let currentData = [];
-let sortKey=null, sortDesc=false;
+let sortKey = null;
+let sortDesc = false;
+let refreshTimer = null;
 
-/* LOGIN */
+const rankOrder = {
+  "Empty-Suit": 1, "Empty-suit": 1,
+  "Delivery Boy": 2, "Delivery Girl": 2,
+  "Picciotto": 3,
+  "Shoplifter": 4,
+  "Pickpocket": 5,
+  "Thief": 6,
+  "Associate": 7,
+  "Mobster": 8,
+  "Soldier": 9,
+  "Swindler": 10,
+  "Assassin": 11,
+  "Local Chief": 12,
+  "Chief": 13,
+  "Bruglione": 14,
+  "Capodecina": 15,
+  "Godfather": 16,
+  "First Lady": 16
+};
+
+const wealthOrder = {
+  "Straydog": 1,
+  "Poor": 2,
+  "Nouveau Riche": 3,
+  "Rich": 4,
+  "Very rich": 5,
+  "Too rich to be true": 6,
+  "Richer than God": 7
+};
+
+const platingOrder = {
+  "None": 1,
+  "Very Low": 2,
+  "Low": 3,
+  "Medium": 4,
+  "High": 5,
+  "Very High": 6
+};
+
 function login(){
-  const u=document.getElementById("username").value;
-  const p=document.getElementById("password").value;
+  const USER = document.getElementById("username").value.trim();
+  const PASS = document.getElementById("password").value.trim();
 
-  if(!users.find(x=>x.user===u && x.pass===p)){
-    document.getElementById("error").innerText="Hatalı giriş";
+  const valid = users.find(u => u.user === USER && u.pass === PASS);
+
+  if(!valid){
+    document.getElementById("error").innerText = "Kullanıcı adı veya şifre yanlış";
     return;
   }
 
-  document.getElementById("login").style.display="none";
-  document.getElementById("app").style.display="block";
+  document.getElementById("login").style.display = "none";
+  document.getElementById("app").style.display = "block";
 
   load();
-  setInterval(load,5000);
+
+  if(refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = setInterval(load, 5000);
 }
 
-/* LOAD */
 async function load(){
-  const res=await fetch("/api/list");
-  const data=await res.json();
-  currentData=data;
-  render();
+  const status = document.getElementById("status");
+
+  try{
+    const res = await fetch("/api/list");
+    const data = await res.json();
+
+    if(!res.ok){
+      status.innerText = "API hatası: " + JSON.stringify(data);
+      return;
+    }
+
+    currentData = data;
+    render();
+
+  }catch(e){
+    status.innerText = "Frontend hata: " + e.message;
+  }
 }
 
-/* SORT */
 function sortTable(key){
-  if(sortKey===key) sortDesc=!sortDesc;
-  else{ sortKey=key; sortDesc=false; }
+  if(sortKey === key){
+    sortDesc = !sortDesc;
+  }else{
+    sortKey = key;
+    sortDesc = false;
+  }
+
   render();
 }
 
-/* FILTER */
-function getFiltered(){
-  const s=document.getElementById("searchInput").value.toLowerCase();
-  const r=Number(document.getElementById("rankFilter").value);
-  const w=Number(document.getElementById("wealthFilter").value);
-  const c=document.getElementById("casinoOnly").checked;
+function getSortValue(row, key){
+  if(key === "position") return Number(row.position || row.pos || 0);
+  if(key === "rank") return rankOrder[row.rank] || 0;
+  if(key === "wealth") return wealthOrder[row.wealth] || 0;
+  if(key === "plating") return platingOrder[row.plating] || 0;
+  return row[key] || "";
+}
 
-  return currentData.filter(u=>{
-    if(s && !u.name.toLowerCase().includes(s)) return false;
-    if(r && u.rankOrder<r) return false;
-    if(w && u.wealthOrder<w) return false;
-    if(c && !u.casino) return false;
+function getFilteredRows(){
+  const search = document.getElementById("searchInput")?.value.toLowerCase().trim() || "";
+  const rankFilter = Number(document.getElementById("rankFilter")?.value || 0);
+  const wealthFilter = Number(document.getElementById("wealthFilter")?.value || 0);
+  const platingFilter = Number(document.getElementById("platingFilter")?.value || 0);
+  const familyFilter = document.getElementById("familyFilter")?.value || "all";
+  const casinoOnly = document.getElementById("casinoOnly")?.checked || false;
+
+  return currentData.filter(u => {
+    const name = (u.name || "").toLowerCase();
+    const family = u.family || "";
+    const casino = u.casino || "";
+
+    if(search && !name.includes(search)) return false;
+
+    if(rankFilter && (rankOrder[u.rank] || 0) < rankFilter) return false;
+
+    if(wealthFilter && (wealthOrder[u.wealth] || 0) < wealthFilter) return false;
+
+    if(platingFilter && (platingOrder[u.plating] || 0) < platingFilter) return false;
+
+    if(familyFilter === "none" && family !== "None") return false;
+    if(familyFilter === "with" && family === "None") return false;
+
+    if(casinoOnly && !casino) return false;
+
     return true;
   });
 }
 
-/* RENDER */
 function render(){
-  let rows=getFiltered();
+  const status = document.getElementById("status");
+  const tbody = document.getElementById("tbody");
+
+  let rows = getFilteredRows();
 
   if(sortKey){
-    rows.sort((a,b)=>{
-      let A=a[sortKey]||"", B=b[sortKey]||"";
-      if(typeof A==="string"){
-        return sortDesc ? B.localeCompare(A):A.localeCompare(B);
+    rows.sort((a, b) => {
+      let A = getSortValue(a, sortKey);
+      let B = getSortValue(b, sortKey);
+
+      if(typeof A === "string"){
+        A = A.toLowerCase();
+        B = String(B).toLowerCase();
+        return sortDesc ? B.localeCompare(A) : A.localeCompare(B);
       }
-      return sortDesc ? B-A : A-B;
+
+      return sortDesc ? B - A : A - B;
     });
   }
 
-  const tbody=document.getElementById("tbody");
-  tbody.innerHTML="";
+  status.innerText = "Gösterilen: " + rows.length + " / Toplam: " + currentData.length;
+  tbody.innerHTML = "";
 
-  rows.forEach(u=>{
-    tbody.innerHTML+=`
+  rows.forEach(u => {
+    tbody.innerHTML += `
       <tr>
-        <td>${u.position||u.pos||""}</td>
-        <td>${u.name}</td>
-        <td class="rank">${u.rank}</td>
-        <td>${u.family}</td>
-        <td class="wealth">${u.wealth}</td>
-        <td>${u.casino||""}</td>
+        <td>${u.position || u.pos || ""}</td>
+        <td>${u.name || ""}</td>
+        <td>${u.rank || ""}</td>
+        <td>${u.family || ""}</td>
+        <td>${u.wealth || ""}</td>
+        <td>${u.plating || ""}</td>
+        <td>${u.casino || ""}</td>
+        <td>${u.updated_at || ""}</td>
       </tr>
     `;
   });

@@ -1,15 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Scanner Panel</title>
+<meta charset="UTF-8">
+<title>Scanner Panel</title>
 </head>
+
 <body style="background:#111;color:#fff;font-family:Arial;padding:20px">
+
+<script>
+// 🔐 LOGIN
+const users = [
+  { user: "admin", pass: "123456" },
+  { user: "mehmet", pass: "5555" }
+];
+
+const USER = prompt("Kullanıcı adı:");
+const PASS = prompt("Şifre:");
+
+const valid = users.find(u => u.user === USER && u.pass === PASS);
+
+if (!valid) {
+  document.body.innerHTML = "<h1>Giriş reddedildi</h1>";
+  throw new Error("Auth failed");
+}
+</script>
 
 <h2>Scanner Panel</h2>
 <div id="status">Yükleniyor...</div>
 
-<table border="1" cellpadding="6" cellspacing="0" style="margin-top:15px;width:100%;border-collapse:collapse;color:white">
+<table border="1" cellpadding="6" cellspacing="0"
+style="margin-top:15px;width:100%;border-collapse:collapse;color:white">
   <thead>
     <tr>
       <th>Name</th>
@@ -54,13 +74,14 @@ async function load() {
         </tr>
       `;
     });
+
   } catch (e) {
     status.innerText = "Frontend hata: " + e.message;
   }
 }
 
 load();
-setInterval(load, 5000);
+setInterval(load, 5000); // 🔄 her 5 saniye güncelle
 </script>
 
 </body>

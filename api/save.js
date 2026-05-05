@@ -1,4 +1,12 @@
 export default async function handler(req, res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-api-key");
+
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -9,24 +17,34 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  const SUPABASE_URL = process.env.SUPABASE_URL;
-  const SUPABASE_KEY = process.env.SUPABASE_KEY;
+  const { users } = req.body || {};
 
-  const body = req.body;
-
-  if (!body || !Array.isArray(body.users)) {
+  if (!Array.isArray(users)) {
     return res.status(400).json({ error: "users array required" });
   }
 
-  const response = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
+  const cleanUsers = users.map(u => ({
+    name: u.name,
+    position: u.pos || u.position || null,
+    rank: u.rank || null,
+    family: u.family || null,
+    wealth: u.wealth || null,
+    plating: u.plating || null,
+    casino: Array.isArray(u.casino) ? u.casino.join(", ") : u.casino || null,
+    is_casino_owner: u.isCasinoOwner ?? u.is_casino_owner ?? false,
+    profile_url: u.profileUrl || u.profile_url || null,
+    updated_at: new Date().toISOString()
+  }));
+
+  const response = await fetch(`${process.env.SUPABASE_URL}/rest/v1/users`, {
     method: "POST",
     headers: {
-      "apikey": SUPABASE_KEY,
-      "Authorization": `Bearer ${SUPABASE_KEY}`,
+      "apikey": process.env.SUPABASE_KEY,
+      "Authorization": `Bearer ${process.env.SUPABASE_KEY}`,
       "Content-Type": "application/json",
       "Prefer": "resolution=merge-duplicates"
     },
-    body: JSON.stringify(body.users)
+    body: JSON.stringify(cleanUsers)
   });
 
   const text = await response.text();
@@ -40,6 +58,6 @@ export default async function handler(req, res) {
 
   return res.status(200).json({
     ok: true,
-    inserted: body.users.length
+    saved: cleanUsers.length
   });
 }

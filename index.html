@@ -3,57 +3,133 @@
 <head>
 <meta charset="UTF-8">
 <title>Scanner Panel</title>
+<style>
+body{
+  margin:0;
+  background:#0f1115;
+  color:#fff;
+  font-family:Arial,sans-serif;
+}
+#login{
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.card{
+  background:#171a21;
+  padding:28px;
+  border-radius:14px;
+  width:320px;
+  box-shadow:0 0 30px rgba(0,0,0,.45);
+}
+.card h2{margin-top:0}
+input,button{
+  width:100%;
+  box-sizing:border-box;
+  padding:11px;
+  margin-top:10px;
+  border-radius:8px;
+  border:1px solid #333;
+  background:#0f1115;
+  color:white;
+}
+button{
+  background:#2563eb;
+  border:0;
+  cursor:pointer;
+  font-weight:bold;
+}
+#error{
+  color:#ff5555;
+  margin-top:12px;
+  font-size:13px;
+}
+#app{
+  display:none;
+  padding:20px;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:15px;
+}
+th,td{
+  border:1px solid #333;
+  padding:7px;
+  font-size:13px;
+}
+th{
+  background:#1f2430;
+}
+</style>
 </head>
 
-<body style="background:#111;color:#fff;font-family:Arial;padding:20px">
+<body>
+
+<div id="login">
+  <div class="card">
+    <h2>Scanner Panel</h2>
+    <input id="username" placeholder="Kullanıcı adı">
+    <input id="password" type="password" placeholder="Şifre">
+    <button onclick="login()">Giriş yap</button>
+    <div id="error"></div>
+  </div>
+</div>
+
+<div id="app">
+  <h2>Scanner Panel</h2>
+  <div id="status">Yükleniyor...</div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Rank</th>
+        <th>Family</th>
+        <th>Wealth</th>
+        <th>Plating</th>
+        <th>Casino</th>
+        <th>Updated</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
 
 <script>
-// 🔐 LOGIN
 const users = [
   { user: "admin", pass: "123456" },
   { user: "mehmet", pass: "5555" }
 ];
 
-const USER = prompt("Kullanıcı adı:");
-const PASS = prompt("Şifre:");
+function login(){
+  const USER = document.getElementById("username").value.trim();
+  const PASS = document.getElementById("password").value.trim();
 
-const valid = users.find(u => u.user === USER && u.pass === PASS);
+  const valid = users.find(u => u.user === USER && u.pass === PASS);
 
-if (!valid) {
-  document.body.innerHTML = "<h1>Giriş reddedildi</h1>";
-  throw new Error("Auth failed");
+  if(!valid){
+    document.getElementById("error").innerText = "Kullanıcı adı veya şifre yanlış";
+    return;
+  }
+
+  document.getElementById("login").style.display = "none";
+  document.getElementById("app").style.display = "block";
+
+  load();
+  setInterval(load, 5000);
 }
-</script>
 
-<h2>Scanner Panel</h2>
-<div id="status">Yükleniyor...</div>
-
-<table border="1" cellpadding="6" cellspacing="0"
-style="margin-top:15px;width:100%;border-collapse:collapse;color:white">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Rank</th>
-      <th>Family</th>
-      <th>Wealth</th>
-      <th>Plating</th>
-      <th>Casino</th>
-      <th>Updated</th>
-    </tr>
-  </thead>
-  <tbody id="tbody"></tbody>
-</table>
-
-<script>
-async function load() {
+async function load(){
   const status = document.getElementById("status");
   const tbody = document.getElementById("tbody");
 
-  try {
+  try{
     const res = await fetch("/api/list");
     const data = await res.json();
 
-    if (!res.ok) {
+    if(!res.ok){
       status.innerText = "API hatası: " + JSON.stringify(data);
       return;
     }
@@ -75,13 +151,10 @@ async function load() {
       `;
     });
 
-  } catch (e) {
+  }catch(e){
     status.innerText = "Frontend hata: " + e.message;
   }
 }
-
-load();
-setInterval(load, 5000); // 🔄 her 5 saniye güncelle
 </script>
 
 </body>

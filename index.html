@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scanner Panel</title>
+  <style>
+    body { margin: 0; background: #111; color: #fff; font-family: Arial, sans-serif; }
+    header { padding: 16px; background: #1a1a1a; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
+    h1 { font-size: 20px; margin: 0; }
+    main { padding: 16px; }
+    input { background: #1f1f1f; border: 1px solid #444; color: #fff; padding: 8px; margin-bottom: 12px; width: 280px; max-width: 100%; }
+    table { width: 100%; border-collapse: collapse; background: #151515; }
+    th, td { border-bottom: 1px solid #303030; padding: 8px; text-align: left; font-size: 13px; }
+    th { background: #202020; color: #ddd; position: sticky; top: 0; }
+    tr:hover { background: #1d1d1d; }
+    .muted { color: #aaa; font-size: 12px; }
+    .pill { display: inline-block; padding: 2px 6px; border-radius: 999px; background: #2a2a2a; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Scanner Panel</h1>
+    <div class="muted" id="status">Loading...</div>
+  </header>
+
+  <main>
+    <input id="search" placeholder="İsim, rank, family ara..." />
+    <table>
+      <thead>
+        <tr>
+          <th>Pos</th>
+          <th>Name</th>
+          <th>Rank</th>
+          <th>Family</th>
+          <th>Wealth</th>
+          <th>Plating</th>
+          <th>Casino</th>
+          <th>Updated</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </main>
+
+  <script>
+    let allUsers = [];
+
+    function formatCasino(value) {
+      if (!value) return '';
+      if (Array.isArray(value)) return value.join(', ');
+      return String(value);
+    }
+
+    function render() {
+      const q = document.getElementById('search').value.toLowerCase().trim();
+      const tbody = document.getElementById('rows');
+      const filtered = allUsers.filter(u => {
+        const text = `${u.name || ''} ${u.rank || ''} ${u.family || ''} ${u.wealth || ''} ${u.plating || ''}`.toLowerCase();
+        return text.includes(q);
+      });
+
+      tbody.innerHTML = filtered.map(u => `
+        <tr>
+          <td>${u.position || ''}</td>
+          <td>${u.name || ''}</td>
+          <td>${u.rank || ''}</td>
+          <td>${u.family || ''}</td>
+          <td>${u.wealth || ''}</td>
+          <td>${u.plating || ''}</td>
+          <td>${u.is_casino_owner ? '<span class="pill">' + formatCasino(u.casino) + '</span>' : ''}</td>
+          <td class="muted">${u.updated_at ? new Date(u.updated_at).toLocaleString('tr-TR') : ''}</td>
+        </tr>
+      `).join('');
+
+      document.getElementById('status').textContent = `${filtered.length}/${allUsers.length} kayıt`;
+    }
+
+    async function load() {
+      try {
+        const res = await fetch('/api/list');
+        allUsers = await res.json();
+        if (!Array.isArray(allUsers)) allUsers = [];
+        render();
+      } catch (err) {
+        document.getElementById('status').textContent = 'Veri alınamadı';
+      }
+    }
+
+    document.getElementById('search').addEventListener('input', render);
+    load();
+    setInterval(load, 5000);
+  </script>
+</body>
+</html>

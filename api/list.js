@@ -1,19 +1,30 @@
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_KEY
-);
-
 export default async function handler(req, res) {
-  const { data, error } = await supabase
-    .from('users')
-    .select('*')
-    .order('updated_at', { ascending: false });
+  try {
+    const response = await fetch(
+      `${process.env.SUPABASE_URL}/rest/v1/users?select=*&order=updated_at.desc`,
+      {
+        headers: {
+          apikey: process.env.SUPABASE_KEY,
+          Authorization: `Bearer ${process.env.SUPABASE_KEY}`
+        }
+      }
+    );
 
-  if (error) {
-    return res.status(500).json({ error: error.message });
+    const text = await response.text();
+
+    if (!response.ok) {
+      return res.status(response.status).json({
+        error: "Supabase error",
+        details: text
+      });
+    }
+
+    const data = JSON.parse(text);
+    return res.status(200).json(data);
+  } catch (err) {
+    return res.status(500).json({
+      error: "List API crashed",
+      message: err.message
+    });
   }
-
-  return res.status(200).json(data || []);
 }

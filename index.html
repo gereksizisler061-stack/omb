@@ -404,7 +404,7 @@ function login(){
   load();
 
   if(refreshTimer) clearInterval(refreshTimer);
-  refreshTimer = setInterval(load, 5000);
+  refreshTimer = setInterval(load, 60000);
 }
 
 async function load(){

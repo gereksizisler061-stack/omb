@@ -4,69 +4,22 @@
 <meta charset="UTF-8">
 <title>Scanner Panel</title>
 <style>
-body{
-  margin:0;
-  background:#0f1115;
-  color:#fff;
-  font-family:Arial,sans-serif;
-}
-#login{
-  height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.card{
-  background:#171a21;
-  padding:28px;
-  border-radius:14px;
-  width:320px;
-  box-shadow:0 0 30px rgba(0,0,0,.45);
-}
+body{margin:0;background:#0f1115;color:#fff;font-family:Arial,sans-serif}
+#login{height:100vh;display:flex;align-items:center;justify-content:center}
+.card{background:#171a21;padding:28px;border-radius:14px;width:320px;box-shadow:0 0 30px rgba(0,0,0,.45)}
 .card h2{margin-top:0}
-input,button{
-  width:100%;
-  box-sizing:border-box;
-  padding:11px;
-  margin-top:10px;
-  border-radius:8px;
-  border:1px solid #333;
-  background:#0f1115;
-  color:white;
-}
-button{
-  background:#2563eb;
-  border:0;
-  cursor:pointer;
-  font-weight:bold;
-}
-#error{
-  color:#ff5555;
-  margin-top:12px;
-  font-size:13px;
-}
-#app{
-  display:none;
-  padding:20px;
-}
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:15px;
-}
-th,td{
-  border:1px solid #333;
-  padding:7px;
-  font-size:13px;
-}
-th{
-  background:#1f2430;
-  cursor:pointer;
-  user-select:none;
-}
-th:hover{
-  background:#293246;
-}
+input,button,select{box-sizing:border-box;padding:10px;border-radius:8px;border:1px solid #333;background:#0f1115;color:white}
+.card input,.card button{width:100%;margin-top:10px}
+button{background:#2563eb;border:0;cursor:pointer;font-weight:bold}
+#error{color:#ff5555;margin-top:12px;font-size:13px}
+#app{display:none;padding:20px}
+#filters{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}
+#filters input,#filters select{min-width:140px}
+label{display:flex;align-items:center;gap:6px;font-size:13px}
+table{width:100%;border-collapse:collapse;margin-top:15px}
+th,td{border:1px solid #333;padding:7px;font-size:13px}
+th{background:#1f2430;cursor:pointer;user-select:none}
+th:hover{background:#293246}
 </style>
 </head>
 
@@ -85,6 +38,46 @@ th:hover{
 <div id="app">
   <h2>Scanner Panel</h2>
   <div id="status">Yükleniyor...</div>
+
+  <div id="filters">
+    <input id="searchInput" placeholder="İsim ara..." oninput="render()">
+
+    <select id="rankFilter" onchange="render()">
+      <option value="0">All Ranks</option>
+      <option value="14">Bruglione+</option>
+      <option value="15">Capodecina+</option>
+      <option value="16">Godfather / First Lady</option>
+    </select>
+
+    <select id="wealthFilter" onchange="render()">
+      <option value="0">All Wealth</option>
+      <option value="4">Rich+</option>
+      <option value="5">Very rich+</option>
+      <option value="6">Too rich+</option>
+      <option value="7">Richer than God</option>
+    </select>
+
+    <select id="platingFilter" onchange="render()">
+      <option value="0">All Plating</option>
+      <option value="1">None+</option>
+      <option value="2">Very Low+</option>
+      <option value="3">Low+</option>
+      <option value="4">Medium+</option>
+      <option value="5">High+</option>
+      <option value="6">Very High only</option>
+    </select>
+
+    <select id="familyFilter" onchange="render()">
+      <option value="all">All Families</option>
+      <option value="none">None only</option>
+      <option value="with">With family</option>
+    </select>
+
+    <label>
+      <input type="checkbox" id="casinoOnly" onchange="render()">
+      Casino only
+    </label>
+  </div>
 
   <table>
     <thead>
@@ -115,10 +108,8 @@ let sortDesc = false;
 let refreshTimer = null;
 
 const rankOrder = {
-  "Empty-Suit": 1,
-  "Empty-suit": 1,
-  "Delivery Boy": 2,
-  "Delivery Girl": 2,
+  "Empty-Suit": 1, "Empty-suit": 1,
+  "Delivery Boy": 2, "Delivery Girl": 2,
   "Picciotto": 3,
   "Shoplifter": 4,
   "Pickpocket": 5,
@@ -171,10 +162,7 @@ function login(){
 
   load();
 
-  if(refreshTimer){
-    clearInterval(refreshTimer);
-  }
-
+  if(refreshTimer) clearInterval(refreshTimer);
   refreshTimer = setInterval(load, 5000);
 }
 
@@ -191,8 +179,6 @@ async function load(){
     }
 
     currentData = data;
-    status.innerText = "Toplam kayıt: " + data.length;
-
     render();
 
   }catch(e){
@@ -212,28 +198,48 @@ function sortTable(key){
 }
 
 function getSortValue(row, key){
-  if(key === "position"){
-    return Number(row.position || row.pos || 0);
-  }
-
-  if(key === "rank"){
-    return rankOrder[row.rank] || 0;
-  }
-
-  if(key === "wealth"){
-    return wealthOrder[row.wealth] || 0;
-  }
-
-  if(key === "plating"){
-    return platingOrder[row.plating] || 0;
-  }
-
+  if(key === "position") return Number(row.position || row.pos || 0);
+  if(key === "rank") return rankOrder[row.rank] || 0;
+  if(key === "wealth") return wealthOrder[row.wealth] || 0;
+  if(key === "plating") return platingOrder[row.plating] || 0;
   return row[key] || "";
 }
 
+function getFilteredRows(){
+  const search = document.getElementById("searchInput")?.value.toLowerCase().trim() || "";
+  const rankFilter = Number(document.getElementById("rankFilter")?.value || 0);
+  const wealthFilter = Number(document.getElementById("wealthFilter")?.value || 0);
+  const platingFilter = Number(document.getElementById("platingFilter")?.value || 0);
+  const familyFilter = document.getElementById("familyFilter")?.value || "all";
+  const casinoOnly = document.getElementById("casinoOnly")?.checked || false;
+
+  return currentData.filter(u => {
+    const name = (u.name || "").toLowerCase();
+    const family = u.family || "";
+    const casino = u.casino || "";
+
+    if(search && !name.includes(search)) return false;
+
+    if(rankFilter && (rankOrder[u.rank] || 0) < rankFilter) return false;
+
+    if(wealthFilter && (wealthOrder[u.wealth] || 0) < wealthFilter) return false;
+
+    if(platingFilter && (platingOrder[u.plating] || 0) < platingFilter) return false;
+
+    if(familyFilter === "none" && family !== "None") return false;
+    if(familyFilter === "with" && family === "None") return false;
+
+    if(casinoOnly && !casino) return false;
+
+    return true;
+  });
+}
+
 function render(){
+  const status = document.getElementById("status");
   const tbody = document.getElementById("tbody");
-  let rows = [...currentData];
+
+  let rows = getFilteredRows();
 
   if(sortKey){
     rows.sort((a, b) => {
@@ -250,6 +256,7 @@ function render(){
     });
   }
 
+  status.innerText = "Gösterilen: " + rows.length + " / Toplam: " + currentData.length;
   tbody.innerHTML = "";
 
   rows.forEach(u => {

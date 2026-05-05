@@ -61,6 +61,11 @@ th,td{
 }
 th{
   background:#1f2430;
+  cursor:pointer;
+  user-select:none;
+}
+th:hover{
+  background:#293246;
 }
 </style>
 </head>
@@ -84,14 +89,14 @@ th{
   <table>
     <thead>
       <tr>
-        <th>Pos</th>
-        <th>Name</th>
-        <th>Rank</th>
-        <th>Family</th>
-        <th>Wealth</th>
-        <th>Plating</th>
-        <th>Casino</th>
-        <th>Updated</th>
+        <th onclick="sortTable('position')">Pos</th>
+        <th onclick="sortTable('name')">Name</th>
+        <th onclick="sortTable('rank')">Rank</th>
+        <th onclick="sortTable('family')">Family</th>
+        <th onclick="sortTable('wealth')">Wealth</th>
+        <th onclick="sortTable('plating')">Plating</th>
+        <th onclick="sortTable('casino')">Casino</th>
+        <th onclick="sortTable('updated_at')">Updated</th>
       </tr>
     </thead>
     <tbody id="tbody"></tbody>
@@ -103,6 +108,52 @@ const users = [
   { user: "admin", pass: "616161" },
   { user: "deneme", pass: "313131" }
 ];
+
+let currentData = [];
+let sortKey = null;
+let sortDesc = false;
+let refreshTimer = null;
+
+const rankOrder = {
+  "Empty-Suit": 1,
+  "Empty-suit": 1,
+  "Delivery Boy": 2,
+  "Delivery Girl": 2,
+  "Picciotto": 3,
+  "Shoplifter": 4,
+  "Pickpocket": 5,
+  "Thief": 6,
+  "Associate": 7,
+  "Mobster": 8,
+  "Soldier": 9,
+  "Swindler": 10,
+  "Assassin": 11,
+  "Local Chief": 12,
+  "Chief": 13,
+  "Bruglione": 14,
+  "Capodecina": 15,
+  "Godfather": 16,
+  "First Lady": 16
+};
+
+const wealthOrder = {
+  "Straydog": 1,
+  "Poor": 2,
+  "Nouveau Riche": 3,
+  "Rich": 4,
+  "Very rich": 5,
+  "Too rich to be true": 6,
+  "Richer than God": 7
+};
+
+const platingOrder = {
+  "None": 1,
+  "Very Low": 2,
+  "Low": 3,
+  "Medium": 4,
+  "High": 5,
+  "Very High": 6
+};
 
 function login(){
   const USER = document.getElementById("username").value.trim();
@@ -119,12 +170,16 @@ function login(){
   document.getElementById("app").style.display = "block";
 
   load();
-  setInterval(load, 5000);
+
+  if(refreshTimer){
+    clearInterval(refreshTimer);
+  }
+
+  refreshTimer = setInterval(load, 5000);
 }
 
 async function load(){
   const status = document.getElementById("status");
-  const tbody = document.getElementById("tbody");
 
   try{
     const res = await fetch("/api/list");
@@ -135,27 +190,82 @@ async function load(){
       return;
     }
 
+    currentData = data;
     status.innerText = "Toplam kayıt: " + data.length;
-    tbody.innerHTML = "";
 
-    data.forEach(u => {
-      tbody.innerHTML += `
-        <tr>
-          <td>${u.pos || ""}</td>
-          <td>${u.name || ""}</td>
-          <td>${u.rank || ""}</td>
-          <td>${u.family || ""}</td>
-          <td>${u.wealth || ""}</td>
-          <td>${u.plating || ""}</td>
-          <td>${u.casino || ""}</td>
-          <td>${u.updated_at || ""}</td>
-        </tr>
-      `;
-    });
+    render();
 
   }catch(e){
     status.innerText = "Frontend hata: " + e.message;
   }
+}
+
+function sortTable(key){
+  if(sortKey === key){
+    sortDesc = !sortDesc;
+  }else{
+    sortKey = key;
+    sortDesc = false;
+  }
+
+  render();
+}
+
+function getSortValue(row, key){
+  if(key === "position"){
+    return Number(row.position || row.pos || 0);
+  }
+
+  if(key === "rank"){
+    return rankOrder[row.rank] || 0;
+  }
+
+  if(key === "wealth"){
+    return wealthOrder[row.wealth] || 0;
+  }
+
+  if(key === "plating"){
+    return platingOrder[row.plating] || 0;
+  }
+
+  return row[key] || "";
+}
+
+function render(){
+  const tbody = document.getElementById("tbody");
+  let rows = [...currentData];
+
+  if(sortKey){
+    rows.sort((a, b) => {
+      let A = getSortValue(a, sortKey);
+      let B = getSortValue(b, sortKey);
+
+      if(typeof A === "string"){
+        A = A.toLowerCase();
+        B = String(B).toLowerCase();
+        return sortDesc ? B.localeCompare(A) : A.localeCompare(B);
+      }
+
+      return sortDesc ? B - A : A - B;
+    });
+  }
+
+  tbody.innerHTML = "";
+
+  rows.forEach(u => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${u.position || u.pos || ""}</td>
+        <td>${u.name || ""}</td>
+        <td>${u.rank || ""}</td>
+        <td>${u.family || ""}</td>
+        <td>${u.wealth || ""}</td>
+        <td>${u.plating || ""}</td>
+        <td>${u.casino || ""}</td>
+        <td>${u.updated_at || ""}</td>
+      </tr>
+    `;
+  });
 }
 </script>
 

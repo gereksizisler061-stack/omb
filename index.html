@@ -1,33 +1,62 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>Scanner Panel</title>
 </head>
-<body style="background:#111;color:#fff;font-family:Arial">
+<body style="background:#111;color:#fff;font-family:Arial;padding:20px">
 
-<h2>Users</h2>
+<h2>Scanner Panel</h2>
+<div id="status">Yükleniyor...</div>
 
-<table border="1" id="tbl"></table>
+<table border="1" cellpadding="6" cellspacing="0" style="margin-top:15px;width:100%;border-collapse:collapse;color:white">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Rank</th>
+      <th>Family</th>
+      <th>Wealth</th>
+      <th>Plating</th>
+      <th>Casino</th>
+      <th>Updated</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
 
 <script>
 async function load() {
-  const res = await fetch("/api/list");
-  const data = await res.json();
+  const status = document.getElementById("status");
+  const tbody = document.getElementById("tbody");
 
-  const tbl = document.getElementById("tbl");
-  tbl.innerHTML = "";
+  try {
+    const res = await fetch("/api/list");
+    const data = await res.json();
 
-  data.forEach(u => {
-    tbl.innerHTML += `
-      <tr>
-        <td>${u.name}</td>
-        <td>${u.rank}</td>
-        <td>${u.family}</td>
-        <td>${u.wealth}</td>
-        <td>${u.plating}</td>
-      </tr>
-    `;
-  });
+    if (!res.ok) {
+      status.innerText = "API hatası: " + JSON.stringify(data);
+      return;
+    }
+
+    status.innerText = "Toplam kayıt: " + data.length;
+    tbody.innerHTML = "";
+
+    data.forEach(u => {
+      tbody.innerHTML += `
+        <tr>
+          <td>${u.name || ""}</td>
+          <td>${u.rank || ""}</td>
+          <td>${u.family || ""}</td>
+          <td>${u.wealth || ""}</td>
+          <td>${u.plating || ""}</td>
+          <td>${u.casino || ""}</td>
+          <td>${u.updated_at || ""}</td>
+        </tr>
+      `;
+    });
+  } catch (e) {
+    status.innerText = "Frontend hata: " + e.message;
+  }
 }
 
 load();

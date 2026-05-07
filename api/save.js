@@ -40,13 +40,42 @@ export default async function handler(req, res) {
     new Map(cleanUsers.map(u => [u.name, u])).values()
   );
 
+  const deleteResponse = await fetch(
+    `${process.env.SUPABASE_URL}/rest/v1/users?name=not.is.null`,
+    {
+      method: "DELETE",
+      headers: {
+        apikey: process.env.SUPABASE_KEY,
+        Authorization: `Bearer ${process.env.SUPABASE_KEY}`,
+        "Content-Type": "application/json"
+      }
+    }
+  );
+
+  const deleteText = await deleteResponse.text();
+
+  if (!deleteResponse.ok) {
+    return res.status(deleteResponse.status).json({
+      error: "Supabase delete error",
+      details: deleteText
+    });
+  }
+
+  if (uniqueUsers.length === 0) {
+    return res.status(200).json({
+      ok: true,
+      deleted: true,
+      saved: 0
+    });
+  }
+
   const response = await fetch(`${process.env.SUPABASE_URL}/rest/v1/users`, {
     method: "POST",
     headers: {
-      "apikey": process.env.SUPABASE_KEY,
-      "Authorization": `Bearer ${process.env.SUPABASE_KEY}`,
+      apikey: process.env.SUPABASE_KEY,
+      Authorization: `Bearer ${process.env.SUPABASE_KEY}`,
       "Content-Type": "application/json",
-      "Prefer": "resolution=merge-duplicates"
+      Prefer: "resolution=merge-duplicates"
     },
     body: JSON.stringify(uniqueUsers)
   });
@@ -55,13 +84,14 @@ export default async function handler(req, res) {
 
   if (!response.ok) {
     return res.status(response.status).json({
-      error: "Supabase error",
+      error: "Supabase insert error",
       details: text
     });
   }
 
   return res.status(200).json({
     ok: true,
+    deleted: true,
     saved: uniqueUsers.length
   });
 }

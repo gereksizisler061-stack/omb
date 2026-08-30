@@ -169,13 +169,14 @@ export default async function handler(req, res) {
       saved: uniqueUsers.length
     });
 
-  } catch (err) {
+} catch (err) {
+  console.error("SAVE API ERROR:", err);
+  console.error("CAUSE:", err?.cause);
 
-    console.error("SAVE API ERROR:", err);
-
-    return res.status(500).json({
-      error: "Internal server error",
-      message: err?.message || String(err)
-    });
-  }
+  return res.status(500).json({
+    error: "Internal server error",
+    message: err?.message || String(err),
+    cause: err?.cause?.message || null,
+    code: err?.cause?.code || null
+  });
 }
